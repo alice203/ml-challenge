@@ -5,11 +5,11 @@ from sklearn.preprocessing import StandardScaler
 # for tensorflow you first have to install it
 #import tensorflow as tf
 #import matplotlib.pyplot as plt
-#from pandas import DataFrame
+#import pandas as pd
 
 ## setting working directory, in the second line add your directory
-#print("Current Working Directory " , os.getcwd())
-#os.chdir("/Users/bejbcia/pythonprojects/Machine Learning/ML Challenge")
+print("Current Working Directory " , os.getcwd())
+os.chdir("/Users/bejbcia/pythonprojects/Machine Learning/ML Challenge")
 
 ## loading the data
 written_train = np.load("written_train.npy", allow_pickle=True)
@@ -21,7 +21,7 @@ match_train = np.load("match_train.npy", allow_pickle=True)
 # z-scoring (very complicated because of spoken shape)
 # THIS OVERWRITES THE REGULAR ONES SO KEEP THAT IN MIND
 # you can comment it out and rerun the code to get normal
-x = np.vstack(spoken_train)
+"""x = np.vstack(spoken_train)
 y = x.flatten()
 x1 = np.vstack(spoken_test)
 y1 = x1.flatten()
@@ -30,16 +30,21 @@ new_scaler = StandardScaler()
 written_train = scaler.fit_transform(written_train)
 written_test = scaler.transform(written_test)
 spoken_train = (spoken_train-np.mean(y)/np.std(y))
-spoken_test = (spoken_test-np.mean(y)/np.std(y))
+spoken_test = (spoken_test-np.mean(y)/np.std(y))"""
+
+# different approach, splitting into two ctaegories, filled and not filled
+"""written_train[written_train >=200] = 1
+written_train[written_train <200] = -1
+written_test[written_test >=200] = 1
+written_test[written_test <200] = -1"""
 
 # subsetting the data to get some test set
-written_train_test = written_train[:5000,:]
-written_train_train = written_train[5000:,:]
-spoken_train_test = spoken_train[:5000]
-spoken_train_train = spoken_train[5000:]
-match_train_test = match_train[:5000] 
-match_train_train = match_train[5000:]
-print(spoken_train_test[0].shape, match_train_test.shape)
+written_train_test = written_train[:4000,:]
+written_train_train = written_train[4000:,:]
+spoken_train_test = spoken_train[:4000]
+spoken_train_train = spoken_train[4000:]
+match_train_test = match_train[:4000] 
+match_train_train = match_train[4000:]
 
 # checking the means of written train
 # function for column wise means of an 28x28 image, axis one is columns I tested it on some toy data
@@ -57,7 +62,6 @@ def spoken_mean(array):
                 mean.append(example.mean(axis=0))
         return np.array(mean)
 sttrain_mean = spoken_mean(spoken_train_train)
-wttrain_mean[0]
 sttest_mean = spoken_mean(spoken_train_test)
 all_together = np.concatenate((wttrain_mean, sttrain_mean), axis = 1)
 lens = []
@@ -108,11 +112,11 @@ def run_perceptron(X_train, labels_train, X_val, labels_val, passes = 500):
                 er = 1 - acc
                 print("{}\t {} \t {}".format(i, er, acc))
                 tries.append(true_false(clf.predict(X_val)))
-        print(tries) 
+        #print(tries) 
                 
-run_perceptron(all_together, match_train_train, all_together2, match_train_test, [30, 50, 80])
+run_perceptron(all_together, match_train_train, all_together2, match_train_test, [100, 200, 500])
 
-clf = Perceptron(random_state = 666, n_iter=30)
+clf = Perceptron(random_state = 666, n_iter=600)
 clf.fit(all_together, match_train_train)
 tryx = clf.predict(all_together2)
 clf.score(all_together2, match_train_test)
