@@ -1,0 +1,147 @@
+## installing libraries
+import numpy as np
+import os
+from sklearn.preprocessing import StandardScaler
+# for tensorflow you first have to install it
+#import tensorflow as tf
+#import matplotlib.pyplot as plt
+#from pandas import DataFrame
+
+## setting working directory, in the second line add your directory
+#print("Current Working Directory " , os.getcwd())
+#os.chdir("/Users/bejbcia/pythonprojects/Machine Learning/ML Challenge")
+
+## loading the data
+written_train = np.load("written_train.npy", allow_pickle=True)
+written_test = np.load("written_test.npy", allow_pickle=True)
+spoken_train = np.load("spoken_train.npy", allow_pickle=True)
+spoken_test = np.load("spoken_test.npy", allow_pickle=True)
+match_train = np.load("match_train.npy", allow_pickle=True)
+
+# z-scoring (very complicated because of spoken shape)
+# THIS OVERWRITES THE REGULAR ONES SO KEEP THAT IN MIND
+# you can comment it out and rerun the code to get normal
+x = np.vstack(spoken_train)
+y = x.flatten()
+x1 = np.vstack(spoken_test)
+y1 = x1.flatten()
+scaler = StandardScaler()
+new_scaler = StandardScaler()
+written_train = scaler.fit_transform(written_train)
+written_test = scaler.transform(written_test)
+spoken_train = (spoken_train-np.mean(y)/np.std(y))
+spoken_test = (spoken_test-np.mean(y)/np.std(y))
+
+# subsetting the data to get some test set
+written_train_test = written_train[:5000,:]
+written_train_train = written_train[5000:,:]
+spoken_train_test = spoken_train[:5000]
+spoken_train_train = spoken_train[5000:]
+match_train_test = match_train[:5000] 
+match_train_train = match_train[5000:]
+print(spoken_train_test[0].shape, match_train_test.shape)
+
+# checking the means of written train
+# function for column wise means of an 28x28 image, axis one is columns I tested it on some toy data
+def written_mean(array):
+        p1 = array.reshape(array.shape[0], 28, 28)
+        p2 = p1.mean(axis = 1)
+        return p2
+wttrain_mean = written_mean(written_train_train)
+# for written train min is 73, max is almost 255, 
+wttest_mean = written_mean(written_train_test)
+# means for spoken train 
+def spoken_mean(array):
+        mean = []
+        for example in array:
+                mean.append(example.mean(axis=0))
+        return np.array(mean)
+sttrain_mean = spoken_mean(spoken_train_train)
+wttrain_mean[0]
+sttest_mean = spoken_mean(spoken_train_test)
+all_together = np.concatenate((wttrain_mean, sttrain_mean), axis = 1)
+lens = []
+for i in spoken_train_train:
+        lens.append(i.shape[0])
+lens = np.array(lens)
+all_together = np.c_[all_together, lens]
+lens2 = []
+for i in spoken_train_test:
+        lens2.append(i.shape[0])
+lens2 = np.array(lens2)
+all_together2 = np.concatenate((wttest_mean, sttest_mean), axis = 1)
+all_together2 = np.c_[all_together2, lens2]
+# not relevant for you guys
+#note to self: test for pandas, can we put each example into one row in pandas? what can we fill for the ones in spoken that are shorter with?
+"""written_train_train.shape
+new_array = np.zeros(4000, )
+for i in range(0, written_train_train.shape[0]):
+        np.append(new_array, written_train_train[i])
+new_array"""
+
+"""from sklearn.linear_model import LogisticRegression
+logisticRegr = LogisticRegression()
+logisticRegr.fit(all_together, match_train_train)
+x = logisticRegr.predict(all_together2)"""
+def true_false(var):
+        true_values = []
+        for i in range(len(var)):
+                if tryx[i] == True:
+                        true_values.append(i)
+                false_values = []
+        for i in range(len(var)):
+                if tryx[i] == False:
+                        false_values.append(i)
+        return("true", len(true_values), "false", len(false_values))
+
+from sklearn.linear_model import Perceptron
+from sklearn.metrics import accuracy_score
+# works but the true_false function called in this function doesn't work
+def run_perceptron(X_train, labels_train, X_val, labels_val, passes = 500):
+        tries = []
+        for i in passes:
+                clf = Perceptron(random_state = 666, n_iter=i)
+                clf.fit(X_train, labels_train)
+                clf.predict(X_val)
+                clf.score(X_val, labels_val)
+                acc = accuracy_score(labels_val, clf.predict(X_val))
+                er = 1 - acc
+                print("{}\t {} \t {}".format(i, er, acc))
+                tries.append(true_false(clf.predict(X_val)))
+        print(tries) 
+                
+run_perceptron(all_together, match_train_train, all_together2, match_train_test, [30, 50, 80])
+
+clf = Perceptron(random_state = 666, n_iter=30)
+clf.fit(all_together, match_train_train)
+tryx = clf.predict(all_together2)
+clf.score(all_together2, match_train_test)
+acc = accuracy_score(match_train_test, clf.predict(all_together2))
+er = 1 - acc
+print("{}\t {} \t {}".format(400, er, acc))
+true_false(tryx)
+
+
+
+"""x = tf.placeholder(tf.float32, shape = [None,40000])
+W = tf.Variable(tf.zeros([40000,2]))
+b = tf.Variable(tf.zeros([2]))
+y = tf.matmul(x,W) + b
+y_true = tf.placeholder(tf.float32, shape = [None, 10])
+cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels = y_true, logits = y))
+optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.5)
+train = optimizer.minimize(cross_entropy)
+init = tf.global_variables_initializer()
+with tf.Session() as sess:
+        sess.run(init)
+
+        for step in range(1000):
+
+                batch_x, batch_y = all_together.next_batch(100)
+                sess.run(train, feed_dict = {x:batch_x, y_true:batch_y})
+        matches = tf.equal(tf.argmax(y,1),tr.argmax(y_true,1))
+        acc = tf.reduce_mean(tf.cast(matches, tf.float32))
+        print(sess.run(acc, feed_dict = {x:all_together, y_true: match_train_train}))"""
+
+# saving the file into an npy file
+# numpy.save("result.npy", array)
