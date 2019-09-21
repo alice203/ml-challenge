@@ -11,10 +11,6 @@ from sklearn.preprocessing import StandardScaler
 seed = 7
 np.random.seed(seed)
 
-## setting working directory, in the second line add your directory
-print("Current Working Directory " , os.getcwd())
-os.chdir("/Users/bejbcia/pythonprojects/Machine Learning/ML Challenge")
-
 ## loading the data
 written_train = np.load("written_train.npy", allow_pickle=True)
 written_test = np.load("written_test.npy", allow_pickle=True)
