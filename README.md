@@ -1,4 +1,4 @@
-# ml-challenge
+# Machine Learning Challenge
 
 The task was to learn to recognize whether an image of a handwritten digit and a recording of a spoken digit refer to the same or different number. „False“ defined the case where the image and the recording refered to different numbers and „true“ defined the case where the image and the recording referred to the same number. 
 Each image was given as 784-dimensional vector, which represented a 28x28 pixel grayscale image. Pixel intensities ranged from 0 (black) to 255 (white). Each sound recording of a spoken name of a digit (e.g. “zero”, “one” etc, pronuounced in Arabic) was given as an array of pre-extracted audio features, so called Mel-Frequency Cepstral Coefficients (MFCC). These features encode the characteristics of a 10 milisecond frame of speech. Each recording is of variable length, and thus each example was given as an array of shape (N, 13), where N is the number of frames in the recording, and 13 the number of MFCC features. 
