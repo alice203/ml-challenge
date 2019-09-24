@@ -14,4 +14,5 @@ The dataset was made available in numpy array format:
 
 •	match_train.npy: array with 45,000 boolean values (False or True)
 
+
 The evaluation metric for this task was error rate accuracy and the submission file had to be an array of 15,000 boolean values, specifying whether the images and sounds from the test data are matched or not. 
