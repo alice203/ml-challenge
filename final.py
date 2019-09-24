@@ -22,7 +22,8 @@ spoken_train = np.load("spoken_train.npy", allow_pickle = True)
 spoken_test = np.load("spoken_test.npy", allow_pickle = True)
 match_train = np.load("match_train.npy", allow_pickle = True)
 
-# fucntion to determine how many true/false values are in target
+# function to determine how many true/false values are in target
+
 def true_false(y):
     unique,counts=np.unique(y,return_counts=True)
     return dict(zip(unique,counts))
@@ -30,6 +31,7 @@ def true_false(y):
 ## Feature engineering ##
 
 # function used to compute different statistics
+
 def spoken_features(data,functions):
     features=[]
     for example in data:
@@ -40,6 +42,7 @@ def spoken_features(data,functions):
 #feature engineering on spoken
 def feat_eng_spoken(spoken,summaries):
     #all the statistics
+
     X_s=spoken_features(spoken,summaries)
     #lengths of spoken
     lens=np.array([example.shape[0] for example in spoken])
@@ -119,5 +122,3 @@ y_pred2=np.array([1 if e>=0.5 else 0 for e in y_pred])
 
 # how many trues and false
 true_false(y_pred2)
-
-np.save("result", y_pred2)
