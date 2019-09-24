@@ -1,1 +1,3 @@
 theme: jekyll-theme-cayman
+title: Machine Learning Challenge
+description: The task was to learn to recognize whether an image of a handwritten digit and a recording of a spoken digit refer to the same or different number.
